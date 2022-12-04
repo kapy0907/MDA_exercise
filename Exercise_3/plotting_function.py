@@ -56,5 +56,6 @@ def plot_temperature_4_models(data, vmin=-15.0, vmax=15.0,
 
     cb_ax = fig.add_axes([0.83, 0.11, 0.02, 0.83])
     cbar = fig.colorbar(im, cax=cb_ax)
+    cbar.ax.set_ylabel('$\Delta$ T [°C]')
 
     plt.show()
