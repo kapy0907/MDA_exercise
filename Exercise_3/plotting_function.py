@@ -3,7 +3,8 @@ import cartopy.crs as ccrs
 import matplotlib.pyplot as plt 
 
 def plot_temperature_4_models(data, vmin=-15.0, vmax=15.0,
-                                 cmap='coolwarm', projection=ccrs.Mercator()):
+                              cmap='coolwarm', projection=ccrs.Mercator(),
+                              statistics=True, save='temperature.png'):
     """
     Plotting routine for comparison of four models. 
     Parameters
@@ -19,7 +20,10 @@ def plot_temperature_4_models(data, vmin=-15.0, vmax=15.0,
     projection : cartopy projection
         Cartopy projection object containing all the projection information of
         the data
-        
+    statistics (optional): boolean
+        print statistics
+    statistics (optional): string
+        path + filename where to save file   
     Returns:
     --------
     None. 
@@ -27,29 +31,30 @@ def plot_temperature_4_models(data, vmin=-15.0, vmax=15.0,
     """
 
     plt.close()
-    fig, axes  = plt.subplots(2,2, subplot_kw={'projection': ccrs.Mercator()})
+    fig, axes  = plt.subplots(2,2, subplot_kw={'projection': projection})
     [[ax1, ax2], [ax3, ax4]] = axes
 
     model_axes = [ax1, ax2, ax3, ax4]
 
     for model, model_ax in zip(data.keys(),model_axes):
 
-        bias = str(data[model].mean().values.round(2))
-        rmse = str(np.sqrt((data[model]**2).mean()).values.round(2))
-
         im = model_ax.pcolormesh(data[model].lon, data[model].lat,
-                                data[model], vmin=-15, vmax=15,
+                                data[model], vmin=vmin, vmax=vmax,
                                 cmap='coolwarm',
                                 transform = ccrs.PlateCarree(),
                                )
         model_ax.axes.coastlines()
         model_ax.set_title(model)
 
-        model_ax.text(0.027,0.047,
-                     'RMSE: ' + rmse + ' \nBIAS: ' + bias,
-                     bbox = dict(facecolor='white', alpha=0.8),
-                     transform=model_ax.transAxes,
-                    )
+        if statistics:
+            bias = str(data[model].mean().values.round(2))
+            rmse = str(np.sqrt((data[model]**2).mean()).values.round(2))
+
+            model_ax.text(0.027,0.047,
+                         'RMSE: ' + rmse + ' \nBIAS: ' + bias,
+                         bbox = dict(facecolor='white', alpha=0.8),
+                         transform=model_ax.transAxes,
+                        )
 
     fig.subplots_adjust(bottom=0.1, top=0.95, left=0.1, right=0.8,
                         wspace=0.1, hspace=0.1)
@@ -58,4 +63,5 @@ def plot_temperature_4_models(data, vmin=-15.0, vmax=15.0,
     cbar = fig.colorbar(im, cax=cb_ax)
     cbar.ax.set_ylabel('$\Delta$ T [°C]')
 
+    plt.savefig(save, dpi=200)
     plt.show()
